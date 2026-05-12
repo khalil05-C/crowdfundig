@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}Administration – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+
+    <!-- En-tête -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+            <i class="bi bi-shield-fill me-1"></i>ADMIN
+        </span>
+        <h2 class="fw-bold mb-0">Tableau de bord administrateur</h2>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-people fs-2 mb-2" style="color:#2E86AB"></i>
+                <div class="fs-3 fw-bold">{{ stats.total_users }}</div>
+                <div class="text-muted small">Utilisateurs</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-folder fs-2 mb-2 text-primary"></i>
+                <div class="fs-3 fw-bold">{{ stats.total_projects }}</div>
+                <div class="text-muted small">Total projets</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-play-circle fs-2 mb-2 text-success"></i>
+                <div class="fs-3 fw-bold text-success">
+                    {{ stats.active_projects }}
+                </div>
+                <div class="text-muted small">Actifs</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-hourglass-split fs-2 mb-2 text-warning"></i>
+                <div class="fs-3 fw-bold text-warning">
+                    {{ stats.pending_projects }}
+                </div>
+                <div class="text-muted small">En attente</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-heart fs-2 mb-2 text-danger"></i>
+                <div class="fs-3 fw-bold">{{ stats.total_pledges }}</div>
+                <div class="text-muted small">Contributions</div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-2">
+            <div class="card p-3 text-center h-100">
+                <i class="bi bi-cash-coin fs-2 mb-2" style="color:#F4A261"></i>
+                <div class="fs-3 fw-bold" style="color:#F4A261">
+                    {{ stats.total_raised }}
+                </div>
+                <div class="text-muted small">MAD collectés</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">Total des donations</div>
+                        <div class="fs-4 fw-bold" style="color:#F4A261">{{ stats.total_raised }} MAD</div>
+                    </div>
+                    <i class="bi bi-cash-stack fs-2" style="color:#F4A261"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="text-muted small">Commissions plateforme</div>
+                <div class="fs-4 fw-bold text-danger">{{ stats.total_commission }} MAD</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <div class="text-muted small">Net projets</div>
+                <div class="fs-4 fw-bold text-success">{{ stats.total_net }} MAD</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Projets en attente -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark rounded-pill">
+                        {{ stats.pending_projects }}
+                    </span>
+                    <h6 class="fw-bold mb-0">Projets en attente de validation</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 small">Projet</th>
+                                <th class="small">Porteur</th>
+                                <th class="small">Objectif</th>
+                                <th class="small">Date</th>
+                                <th class="small">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in pending_projects %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-semibold small">
+                                        {{ project.title|truncatechars:30 }}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ project.category.name|default:"—" }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <small>{{ project.owner.get_full_name }}</small>
+                                </td>
+                                <td>
+                                    <small class="fw-semibold">
+                                        {{ project.goal_amount }} MAD
+                                    </small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ project.created_at|date:"d/m/Y" }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <a href="/projects/{{ project.slug }}/"
+                                       class="btn btn-sm btn-outline-secondary rounded-pill me-1">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="/dashboard/approve/{{ project.pk }}/"
+                                       class="btn btn-sm btn-success rounded-pill me-1">
+                                        <i class="bi bi-check-lg"></i>
+                                    </a>
+                                    <a href="/dashboard/reject/{{ project.pk }}/"
+                                       class="btn btn-sm btn-danger rounded-pill">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-check-all fs-3 d-block mb-2"></i>
+                                    Aucun projet en attente ✅
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nouveaux utilisateurs -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-people me-2"></i>Nouveaux utilisateurs
+                    </h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for u in recent_users %}
+                    <div class="list-group-item d-flex align-items-center gap-3 py-2">
+                        <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:#1A3C5E;font-size:.8rem">
+                            {{ u.first_name.0 }}{{ u.last_name.0 }}
+                        </div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="small fw-semibold text-truncate">
+                                {{ u.get_full_name }}
+                            </div>
+                            <div class="small text-muted text-truncate">
+                                {{ u.email }}
+                            </div>
+                        </div>
+                        <span class="badge rounded-pill
+                            {% if u.role == 'project_owner' %}bg-primary
+                            {% elif u.role == 'admin' %}bg-danger
+                            {% else %}bg-success{% endif %} small">
+                            {{ u.get_role_display }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4 small">
+                        Aucun utilisateur
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Projets récents financés -->
+            <div class="card mt-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-trophy me-2 text-warning"></i>
+                        Projets financés
+                    </h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for project in funded_projects %}
+                    <div class="list-group-item py-2">
+                        <div class="fw-semibold small">
+                            {{ project.title|truncatechars:25 }}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">
+                                {{ project.backers_count }} contributeurs
+                            </small>
+                            <small class="fw-bold" style="color:#F4A261">
+                                {{ project.current_amount }} MAD
+                            </small>
+                        </div>
+                        <small class="text-success">Net recu : {{ project.net_received }} MAD</small>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-3 small">
+                        Aucun projet financé
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

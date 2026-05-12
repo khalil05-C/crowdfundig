@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Connexion – FundRise MA{% endblock %}
+
+{% block content %}
+<section class="min-vh-100 d-flex align-items-center py-5" style="background:#F0F9FF">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card p-4 p-md-5">
+
+                    <!-- Logo -->
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">
+                            Fund<span style="color:#F4A261">Rise</span> MA
+                        </h2>
+                        <p class="text-muted small">Content de vous revoir !</p>
+                    </div>
+
+                    <!-- Formulaire -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Email</label>
+                            <input type="email" name="username" class="form-control rounded-3"
+                                   placeholder="khalil@gmail.com" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label fw-semibold small">Mot de passe</label>
+                                <a href="#" class="small text-decoration-none" style="color:#F4A261">Oublié ?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control rounded-3"
+                                   placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 mt-2 fw-semibold">
+                            Se connecter
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <p class="text-center text-muted small mb-0">
+                        Pas encore de compte ?
+                        <a href="/accounts/register/" class="fw-semibold text-decoration-none" style="color:#1A3C5E">
+                            S'inscrire gratuitement
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

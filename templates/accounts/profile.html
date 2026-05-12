@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% block title %}Mon Profil – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:900px">
+
+    <h2 class="fw-bold mb-4">Mon Profil</h2>
+
+    <div class="row g-4">
+
+        <!-- ════ INFOS PROFIL ════ -->
+        <div class="col-lg-4">
+            <div class="card p-4 text-center">
+
+                <!-- Avatar -->
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}"
+                     class="rounded-circle mb-3"
+                     style="width:100px;height:100px;object-fit:cover">
+                {% else %}
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center text-white fw-bold"
+                     style="width:100px;height:100px;background:#1A3C5E;font-size:2rem">
+                    {{ user.first_name.0 }}{{ user.last_name.0 }}
+                </div>
+                {% endif %}
+
+                <h5 class="fw-bold mb-0">{{ user.get_full_name }}</h5>
+                <p class="text-muted small">{{ user.email }}</p>
+
+                <!-- Badge rôle -->
+                <span class="badge rounded-pill px-3 py-2
+                    {% if user.role == 'project_owner' %}bg-primary
+                    {% elif user.role == 'admin' %}bg-danger
+                    {% else %}bg-success{% endif %}">
+                    {{ user.get_role_display }}
+                </span>
+
+                {% if user.bio %}
+                <p class="text-muted small mt-3">{{ user.bio }}</p>
+                {% endif %}
+
+                <hr>
+
+                <!-- Badges contributeur -->
+                <div class="text-start mb-3">
+                    <h6 class="fw-bold small mb-2">
+                        <i class="bi bi-award me-1"></i>Badges contributeur
+                    </h6>
+                    {% if badges %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for badge in badges %}
+                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                            {{ badge.title }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <small class="text-muted">Aucun badge pour le moment.</small>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <!-- Stats -->
+                <div class="row text-center g-0">
+                    <div class="col-6 border-end">
+                        <div class="fw-bold fs-5" style="color:#F4A261">
+                            {{ user.projects.count }}
+                        </div>
+                        <div class="text-muted small">Projets</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold fs-5" style="color:#F4A261">
+                            {{ user.pledges.count }}
+                        </div>
+                        <div class="text-muted small">Contributions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ MODIFIER PROFIL ════ -->
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-pencil me-2"></i>Modifier mes informations
+                </h5>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">Prénom</label>
+                            <input type="text" name="first_name"
+                                   class="form-control rounded-3"
+                                   value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">Nom</label>
+                            <input type="text" name="last_name"
+                                   class="form-control rounded-3"
+                                   value="{{ user.last_name }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Téléphone</label>
+                            <input type="text" name="phone"
+                                   class="form-control rounded-3"
+                                   value="{{ user.phone }}"
+                                   placeholder="+212 6XX XXX XXX">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Préférence de notification</label>
+                            <select name="notification_preference" class="form-select rounded-3">
+                                <option value="email" {% if user.notification_preference == 'email' %}selected{% endif %}>Email</option>
+                                <option value="phone" {% if user.notification_preference == 'phone' %}selected{% endif %}>Téléphone</option>
+                                <option value="both" {% if user.notification_preference == 'both' %}selected{% endif %}>Email et téléphone</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Biographie</label>
+                            <textarea name="bio" class="form-control rounded-3" rows="3"
+                                      placeholder="Parlez-nous de vous...">{{ user.bio }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">
+                                Photo de profil
+                            </label>
+                            <input type="file" name="avatar"
+                                   class="form-control rounded-3" accept="image/*">
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="/dashboard/"
+                               class="btn btn-outline-secondary rounded-pill px-4">
+                                Annuler
+                            </a>
+                            <button type="submit"
+                                    class="btn btn-accent rounded-pill px-4 fw-semibold">
+                                <i class="bi bi-save me-1"></i>Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Contributions récentes -->
+            <div class="card p-4 mt-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-clock-history me-2"></i>Mes contributions récentes
+                </h5>
+                {% for pledge in user.pledges.all|slice:":5" %}
+                <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0"
+                         style="width:38px;height:38px;background:#10B981;font-size:.8rem">
+                        <i class="bi bi-heart-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">{{ pledge.project.title }}</div>
+                        <div class="text-muted small">
+                            {{ pledge.created_at|date:"d/m/Y" }}
+                            {% if pledge.reward %}
+                            · {{ pledge.reward.title }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="fw-bold" style="color:#F4A261">
+                        {{ pledge.amount }} MAD
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted small">Aucune contribution pour l'instant.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_ar %}كيف تعمل المنصة{% else %}Comment ca marche{% endif %} - FundRise MA{% endblock %}
+
+{% block content %}
+<section class="bg-white border-bottom py-5">
+    <div class="container" style="max-width:980px">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge rounded-pill mb-3" style="background:#F0F9FF;color:#1A3C5E">
+                    {% if is_ar %}دليل الحملة{% else %}Guide cagnotte{% endif %}
+                </span>
+                <h1 class="fw-bold mb-3" style="color:#1A3C5E">
+                    {% if is_ar %}كيف تعمل حملة التمويل؟{% else %}Comment fonctionne une cagnotte ?{% endif %}
+                </h1>
+                <p class="lead text-muted mb-0">
+                    {% if is_ar %}
+                    الحملة تسمح لك بعرض مشروعك، تحديد هدف مالي بالدرهم، واستقبال مساهمات من أشخاص يريدون دعم فكرتك. تصبح الحملة عامة فقط بعد موافقة المشرف.
+                    {% else %}
+                    Une cagnotte permet de présenter un projet, fixer un objectif en MAD et recevoir des contributions de personnes qui souhaitent soutenir votre idée. Sur FundRise MA, une cagnotte devient publique seulement après validation par le modérateur.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <div class="card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-semibold">{% if is_ar %}الهدف{% else %}Objectif{% endif %}</span>
+                        <span class="fw-bold" style="color:#F4A261">50 000 MAD</span>
+                    </div>
+                    <div class="progress mb-3" style="height:10px">
+                        <div class="progress-bar" style="width:65%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>{% if is_ar %}32 500 درهم تم جمعها{% else %}32 500 MAD collectés{% endif %}</span>
+                        <span>65%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container" style="max-width:980px">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 p-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mb-3"
+                         style="width:58px;height:58px;background:#1A3C5E">
+                        <i class="bi bi-pencil-square text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">{% if is_ar %}1. إنشاء الحملة{% else %}1. Créer la cagnotte{% endif %}</h5>
+                    <p class="text-muted small mb-0">
+                        {% if is_ar %}أضف العنوان، الوصف، الفئة، الهدف المالي، تاريخ النهاية وصورة الغلاف. يمكنك حفظها كمسودة أو إرسالها للمشرف.{% else %}Le porteur ajoute le titre, la description, la catégorie, l'objectif financier, la date de fin et une image. Il peut sauvegarder en brouillon ou soumettre au modérateur.{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mb-3"
+                         style="width:58px;height:58px;background:#F4A261">
+                        <i class="bi bi-shield-check text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">{% if is_ar %}2. المراجعة{% else %}2. Validation{% endif %}</h5>
+                    <p class="text-muted small mb-0">
+                        {% if is_ar %}يتحقق المشرف من المحتوى قبل النشر. قبل الموافقة لا تظهر الحملة للزوار ولا يمكن لأي شخص المساهمة.{% else %}Le modérateur vérifie le contenu avant publication. Tant que la cagnotte n'est pas approuvée, elle ne s'affiche pas aux visiteurs et personne ne peut contribuer.{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center mb-3"
+                         style="width:58px;height:58px;background:#10B981">
+                        <i class="bi bi-cash-coin text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">{% if is_ar %}3. المساهمات{% else %}3. Contributions{% endif %}</h5>
+                    <p class="text-muted small mb-0">
+                        {% if is_ar %}بعد الموافقة يظهر زر الدعم. يختار المساهم المبلغ، يدفع، ويتم تحديث تقدم الحملة تلقائيا.{% else %}Une fois active, la cagnotte affiche le bouton Soutenir. Les contributeurs choisissent un montant, paient, puis la progression se met à jour automatiquement.{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white py-5">
+    <div class="container" style="max-width:980px">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h3 class="fw-bold mb-3">{% if is_ar %}أنواع الحملات{% else %}Types de cagnotte{% endif %}</h3>
+                <div class="border rounded-3 p-3 mb-3">
+                    <h6 class="fw-bold mb-1">{% if is_ar %}كل شيء أو لا شيء{% else %}Tout ou rien{% endif %}</h6>
+                    <p class="text-muted small mb-0">
+                        {% if is_ar %}تستخدم الأموال إذا تم بلوغ الهدف. هذا النوع مناسب للمشاريع التي تحتاج الميزانية كاملة للانطلاق.{% else %}Les fonds sont destinés au projet si l'objectif est atteint. Ce mode rassure les contributeurs quand le projet a besoin du budget complet pour démarrer.{% endif %}
+                    </p>
+                </div>
+                <div class="border rounded-3 p-3">
+                    <h6 class="fw-bold mb-1">{% if is_ar %}مرن{% else %}Flexible{% endif %}</h6>
+                    <p class="text-muted small mb-0">
+                        {% if is_ar %}يمكن لصاحب المشروع التقدم بالأموال التي تم جمعها حتى إذا لم يتحقق الهدف الكامل.{% else %}Le porteur peut avancer avec les fonds collectés même si l'objectif total n'est pas atteint. Ce mode convient aux projets qui peuvent progresser par étapes.{% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h3 class="fw-bold mb-3">{% if is_ar %}نصائح مهمة{% else %}Bonnes pratiques{% endif %}</h3>
+                <ul class="list-group list-group-flush rounded-3">
+                    <li class="list-group-item">{% if is_ar %}اشرح بوضوح أين ستستعمل الأموال.{% else %}Expliquez clairement à quoi servira l'argent collecté.{% endif %}</li>
+                    <li class="list-group-item">{% if is_ar %}أضف صورة واضحة ووصفا دقيقا.{% else %}Ajoutez une image claire et une description concrète.{% endif %}</li>
+                    <li class="list-group-item">{% if is_ar %}حدد هدفا واقعيا وتاريخ نهاية واضحا.{% else %}Fixez un objectif réaliste et une date de fin crédible.{% endif %}</li>
+                    <li class="list-group-item">{% if is_ar %}انشر تحديثات منتظمة للمساهمين.{% else %}Partagez régulièrement des mises à jour aux contributeurs.{% endif %}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            {% if user.is_authenticated %}
+            <a href="/projects/create/" class="btn btn-accent px-5">
+                <i class="bi bi-plus-lg me-2"></i>{% if is_ar %}إنشاء حملتي{% else %}Créer ma cagnotte{% endif %}
+            </a>
+            {% else %}
+            <a href="/accounts/register/" class="btn btn-accent px-5">
+                <i class="bi bi-person-plus me-2"></i>{% if is_ar %}إنشاء حساب{% else %}Créer un compte{% endif %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

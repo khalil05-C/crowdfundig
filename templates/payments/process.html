@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Paiement – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:600px">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">💳 Finaliser le paiement</h2>
+        <p class="text-muted">Projet : <strong>{{ pledge.project.title }}</strong></p>
+    </div>
+
+    <div class="card p-4">
+
+        <!-- Résumé -->
+        <div class="alert rounded-3 mb-4"
+             style="background:#F0F9FF;border:1px solid #2E86AB">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Montant à payer</span>
+                <span class="fs-4 fw-bold" style="color:#F4A261">
+                    {{ pledge.amount }} MAD
+                </span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between small text-muted">
+                <span>Commission plateforme (5%)</span>
+                <span>{{ pledge.amount|floatformat:2 }} × 5%</span>
+            </div>
+        </div>
+
+        <!-- Méthodes de paiement -->
+        <form method="post">
+            {% csrf_token %}
+
+            <h6 class="fw-bold mb-3">Choisir une méthode de paiement</h6>
+
+            {% if not stripe_available %}
+            <div class="alert alert-warning rounded-3 small">
+                Stripe Checkout n'est pas encore configure. Ajoutez STRIPE_PUBLIC_KEY et STRIPE_SECRET_KEY pour afficher le paiement par carte Stripe.
+            </div>
+            {% endif %}
+
+            <div class="d-flex flex-column gap-3 mb-4">
+
+                <!-- Carte bancaire -->
+                <label class="border rounded-3 p-3 d-flex align-items-center gap-3"
+                       style="cursor:pointer">
+                    <input type="radio" name="payment_method"
+                           value="stripe"
+                           {% if stripe_available %}checked{% else %}disabled{% endif %}>
+                    <div class="rounded d-flex align-items-center justify-content-center"
+                         style="width:45px;height:30px;background:{% if stripe_available %}#635BFF{% else %}#94A3B8{% endif %}">
+                        <i class="bi bi-credit-card text-white"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold small">Carte bancaire avec Stripe</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                            {% if stripe_available %}
+                            Visa, Mastercard, paiement securise Stripe
+                            {% else %}
+                            Configurez les cles Stripe pour activer ce choix
+                            {% endif %}
+                        </div>
+                    </div>
+                </label>
+
+                <!-- CMI -->
+                <label class="border rounded-3 p-3 d-flex align-items-center gap-3"
+                       style="cursor:pointer">
+                    <input type="radio" name="payment_method" value="cmi">
+                    <div class="rounded d-flex align-items-center justify-content-center"
+                         style="width:45px;height:30px;background:#006838">
+                        <span class="text-white fw-bold" style="font-size:.7rem">CMI</span>
+                    </div>
+                    <div>
+                        <div class="fw-semibold small">CMI Maroc</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                            Paiement local sécurisé
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Virement -->
+                <label class="border rounded-3 p-3 d-flex align-items-center gap-3"
+                       style="cursor:pointer">
+                    <input type="radio" name="payment_method"
+                           value="bank_transfer"
+                           {% if not stripe_available %}checked{% endif %}>
+                    <div class="rounded d-flex align-items-center justify-content-center"
+                         style="width:45px;height:30px;background:#1A3C5E">
+                        <i class="bi bi-bank text-white"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold small">Virement bancaire</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                            2-3 jours ouvrés
+                        </div>
+                    </div>
+                </label>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-accent w-100 py-3 fw-bold rounded-pill fs-5">
+                <i class="bi bi-lock-fill me-2"></i>
+                {% if stripe_available %}Payer {{ pledge.amount }} MAD{% else %}Continuer le paiement{% endif %}
+            </button>
+
+            <p class="text-center text-muted small mt-3">
+                <i class="bi bi-shield-check me-1"></i>
+                Paiement 100% sécurisé
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}

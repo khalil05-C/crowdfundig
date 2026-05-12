@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_ar %}الدعم{% else %}Support{% endif %} - FundRise MA{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white border-bottom">
+    <div class="container" style="max-width:1100px">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <h1 class="fw-bold mb-2" style="color:#1A3C5E">{% if is_ar %}الدعم{% else %}Support{% endif %}</h1>
+                <p class="text-muted mb-0">
+                    {% if is_ar %}أنشئ تذكرة وتواصل مع الإدارة إلى أن يتم حل المشكلة.{% else %}Créez un ticket et discutez avec l'administration jusqu'à la résolution.{% endif %}
+                </p>
+            </div>
+            {% if user.is_staff or user.role == 'admin' %}
+            <a href="/support/admin/" class="btn btn-outline-primary">
+                <i class="bi bi-inboxes me-1"></i>{% if is_ar %}واجهة الإدارة{% else %}Interface admin{% endif %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container" style="max-width:1100px">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">{% if is_ar %}إنشاء تذكرة{% else %}Créer un ticket{% endif %}</h5>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">{% if is_ar %}موضوع المشكلة *{% else %}Sujet du problème *{% endif %}</label>
+                            {{ form.subject }}
+                            {{ form.subject.errors }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">{% if is_ar %}فئة المشكلة *{% else %}Catégorie *{% endif %}</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">{% if is_ar %}وصف مفصل *{% else %}Description détaillée *{% endif %}</label>
+                            {{ form.description }}
+                            {{ form.description.errors }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">{% if is_ar %}الأولوية *{% else %}Priorité *{% endif %}</label>
+                            {{ form.priority }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small">{% if is_ar %}صورة أو ملف{% else %}Capture d'écran ou fichier{% endif %}</label>
+                            {{ form.attachment }}
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100">
+                            <i class="bi bi-send me-1"></i>{% if is_ar %}إرسال التذكرة{% else %}Envoyer le ticket{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="fw-bold mb-0">{% if is_ar %}تذاكري السابقة{% else %}Mes anciens tickets{% endif %}</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for ticket in tickets %}
+                        <a href="/support/ticket/{{ ticket.pk }}/" class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex justify-content-between gap-3">
+                                <div>
+                                    <div class="fw-semibold">#{{ ticket.pk }} - {{ ticket.subject }}</div>
+                                    <div class="text-muted small">
+                                        {{ ticket.get_category_display }} · {{ ticket.created_at|date:"d/m/Y H:i" }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge rounded-pill
+                                        {% if ticket.status == 'open' %}bg-primary
+                                        {% elif ticket.status == 'in_progress' %}bg-warning text-dark
+                                        {% elif ticket.status == 'resolved' %}bg-success
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ ticket.get_status_display }}
+                                    </span>
+                                    <div class="small mt-1
+                                        {% if ticket.priority == 'urgent' %}text-danger
+                                        {% elif ticket.priority == 'medium' %}text-warning
+                                        {% else %}text-muted{% endif %}">
+                                        {{ ticket.get_priority_display }}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            {% if is_ar %}لا توجد تذاكر حاليا.{% else %}Aucun ticket pour le moment.{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

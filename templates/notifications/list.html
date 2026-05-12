@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Notifications – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:750px">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-bell me-2"></i>Notifications
+        </h2>
+        {% if notifications %}
+        <a href="/notifications/mark-all-read/"
+           class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="bi bi-check-all me-1"></i>Tout marquer comme lu
+        </a>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+        {% for notif in notifications %}
+        <div class="card mb-3 p-3
+            {% if not notif.is_read %}border-start border-4{% endif %}"
+             style="{% if not notif.is_read %}border-color:#F4A261!important{% endif %}">
+            <div class="d-flex gap-3 align-items-start">
+
+                <!-- Icône selon type -->
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-white"
+                     style="width:42px;height:42px;
+                     background:{% if notif.notification_type == 'pledge_received' %}#10B981
+                     {% elif notif.notification_type == 'project_funded' %}#2E86AB
+                     {% elif notif.notification_type == 'project_approved' %}#1A3C5E
+                     {% else %}#F4A261{% endif %}">
+                    <i class="bi
+                        {% if notif.notification_type == 'pledge_received' %}bi-heart-fill
+                        {% elif notif.notification_type == 'project_funded' %}bi-trophy-fill
+                        {% elif notif.notification_type == 'project_approved' %}bi-check-circle-fill
+                        {% else %}bi-bell-fill{% endif %}">
+                    </i>
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-semibold">{{ notif.title }}</span>
+                        <small class="text-muted">
+                            {{ notif.created_at|timesince }} ago
+                        </small>
+                    </div>
+                    <p class="text-muted small mb-1">{{ notif.message }}</p>
+                    {% if notif.link %}
+                    <a href="{{ notif.link }}"
+                       class="btn btn-sm btn-outline-primary rounded-pill">
+                        Voir
+                    </a>
+                    {% endif %}
+                    {% if not notif.is_read %}
+                    <form method="post" action="/notifications/mark-read/{{ notif.pk }}/" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill">
+                            Marquer comme lu
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                {% if not notif.is_read %}
+                <span class="badge rounded-circle bg-warning"
+                      style="width:10px;height:10px;padding:0">
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-bell-slash"
+           style="font-size:4rem;color:#cbd5e1"></i>
+        <h5 class="mt-3 text-muted">Aucune notification</h5>
+        <p class="text-muted small">
+            Vous recevrez des notifications quand quelqu'un soutiendra votre projet.
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

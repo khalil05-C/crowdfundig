@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% block title %}Soutenir {{ project.title }} – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:700px">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">💝 Soutenir ce projet</h2>
+        <p class="text-muted">{{ project.title }}</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Formulaire contribution -->
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger rounded-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Montant -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Montant de votre contribution (MAD) *
+                        </label>
+                        <div class="input-group">
+                            <input type="number" name="amount"
+                                   class="form-control form-control-lg rounded-start-3"
+                                   placeholder="Ex: 100" min="10" required
+                                   value="{{ form.amount.value|default_if_none:'' }}">
+                            <span class="input-group-text rounded-end-3 fw-bold">MAD</span>
+                        </div>
+                        <!-- Montants rapides -->
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            {% for amount in quick_amounts %}
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary rounded-pill quick-amount"
+                                    data-amount="{{ amount }}">
+                                {{ amount }} MAD
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Récompenses -->
+                    {% if rewards %}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Choisir une récompense (optionnel)
+                        </label>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="form-check border rounded-3 p-3">
+                                <input class="form-check-input" type="radio"
+                                       name="reward" value="" id="no_reward" checked>
+                                <label class="form-check-label w-100" for="no_reward">
+                                    <span class="fw-semibold">Aucune récompense</span>
+                                    <small class="text-muted d-block">Don libre sans contrepartie</small>
+                                </label>
+                            </div>
+                            {% for reward in rewards %}
+                            <div class="form-check border rounded-3 p-3 reward-option
+                                {% if not reward.is_available %}opacity-50{% endif %}">
+                                <input class="form-check-input" type="radio"
+                                       name="reward" value="{{ reward.pk }}"
+                                       id="reward_{{ reward.pk }}"
+                                       data-min="{{ reward.minimum_amount }}"
+                                       {% if not reward.is_available %}disabled{% endif %}>
+                                <label class="form-check-label w-100" for="reward_{{ reward.pk }}">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-semibold">
+                                            {% if reward.is_badge %}
+                                            <i class="bi bi-award me-1 text-warning"></i>
+                                            {% else %}
+                                            <i class="bi bi-gift me-1 text-success"></i>
+                                            {% endif %}
+                                            {{ reward.title }}
+                                        </span>
+                                        <span class="fw-bold" style="color:#F4A261">
+                                            {{ reward.minimum_amount }} MAD+
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ reward.description|truncatewords:12 }}</small>
+                                    {% if reward.quantity_available %}
+                                    <small class="text-muted d-block">
+                                        <i class="bi bi-box me-1"></i>
+                                        {{ reward.quantity_available }} restants
+                                    </small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Message -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Message au porteur (optionnel)
+                        </label>
+                        <textarea name="message" class="form-control rounded-3" rows="3"
+                                  placeholder="Encouragez le porteur du projet...">{{ form.message.value|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <!-- Anonyme -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="is_anonymous" id="anonymous">
+                            <label class="form-check-label small" for="anonymous">
+                                Contribuer de façon anonyme
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Bouton -->
+                    <button type="submit"
+                            class="btn btn-accent w-100 py-3 fw-bold rounded-pill fs-5">
+                        <i class="bi bi-heart-fill me-2"></i>Confirmer ma contribution
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Résumé projet -->
+        <div class="col-lg-5">
+            <div class="card p-4 sticky-top" style="top:80px">
+                <h6 class="fw-bold mb-3">Résumé du projet</h6>
+
+                {% if project.cover_image %}
+                <img src="{{ project.cover_image.url }}"
+                     class="img-fluid rounded-3 mb-3"
+                     style="height:150px;object-fit:cover;width:100%">
+                {% endif %}
+
+                <h6 class="fw-bold">{{ project.title }}</h6>
+                <p class="text-muted small">{{ project.short_description|truncatewords:15 }}</p>
+
+                <hr>
+
+                <div class="progress mb-2" style="height:6px">
+                    <div class="progress-bar"
+                         style="width:{{ project.progress_percent }}%">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="fw-bold" style="color:#F4A261">
+                        {{ project.progress_percent }}%
+                    </span>
+                    <span class="text-muted">
+                        {{ project.days_remaining }}j restants
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    const amountInput = document.querySelector('input[name="amount"]');
+    const rewardOptions = document.querySelectorAll('.reward-option');
+    const noReward = document.getElementById('no_reward');
+
+    function refreshRewards() {
+        const amount = Number(amountInput.value || 0);
+
+        rewardOptions.forEach(option => {
+            const input = option.querySelector('input[type="radio"]');
+            const minimum = Number(input.dataset.min || 0);
+            const unlocked = amount >= minimum && !input.hasAttribute('data-stock-empty');
+
+            option.classList.toggle('d-none', !unlocked);
+            input.disabled = !unlocked;
+
+            if (!unlocked && input.checked) {
+                noReward.checked = true;
+            }
+        });
+    }
+
+    document.querySelectorAll('.quick-amount').forEach(btn => {
+        btn.addEventListener('click', function() {
+            amountInput.value = this.dataset.amount;
+            refreshRewards();
+        });
+    });
+
+    amountInput.addEventListener('input', refreshRewards);
+    refreshRewards();
+</script>
+{% endblock %}
+
+{% endblock %}

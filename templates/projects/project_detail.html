@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.title }} – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="/projects/">Projets</a></li>
+            <li class="breadcrumb-item active">{{ project.title|truncatechars:40 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- ════ COLONNE GAUCHE ════ -->
+        <div class="col-lg-8">
+
+            <!-- Image -->
+            {% if project.cover_image %}
+            <img src="{{ project.cover_image.url }}"
+                 class="img-fluid rounded-3 w-100 mb-4"
+                 style="max-height:420px;object-fit:cover">
+            {% else %}
+            <div class="rounded-3 mb-4 d-flex align-items-center justify-content-center"
+                 style="height:350px;background:linear-gradient(135deg,#1A3C5E,#2E86AB)">
+                <i class="bi bi-lightbulb text-white" style="font-size:5rem;opacity:.4"></i>
+            </div>
+            {% endif %}
+
+            <!-- Catégorie -->
+            {% if project.category %}
+            <span class="badge rounded-pill mb-2"
+                  style="background:{{ project.category.color }}">
+                {{ project.category.name }}
+            </span>
+            {% endif %}
+
+            <!-- Titre -->
+            <h1 class="h2 fw-bold mt-2">{{ project.title }}</h1>
+            <p class="text-muted">
+                Par <strong>{{ project.owner.get_full_name }}</strong>
+            </p>
+
+            <!-- Description courte -->
+            <p class="lead border-start border-4 ps-3 text-muted"
+               style="border-color:#F4A261!important">
+                {{ project.short_description }}
+            </p>
+
+            <!-- Onglets -->
+            <ul class="nav nav-tabs mt-4">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#description">
+                        Description
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#updates">
+                        Mises à jour
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#rewards">
+                        Recompenses
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#comments">
+                        Commentaires
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-4">
+                <!-- Description -->
+                <div class="tab-pane fade show active" id="description">
+                    {{ project.description|linebreaks }}
+                    {% if project.video_embed_url %}
+                    <div class="ratio ratio-16x9 mt-4 rounded-3 overflow-hidden">
+                        <iframe src="{{ project.video_embed_url }}"
+                                title="Video du projet"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Mises à jour -->
+                <div class="tab-pane fade" id="updates">
+                    {% for update in project.project_updates.all %}
+                    <div class="card mb-3 p-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <h6 class="fw-bold mb-0">{{ update.title }}</h6>
+                            <small class="text-muted">{{ update.created_at|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-0 small">{{ update.content }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Aucune mise à jour pour l'instant.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Recompenses -->
+                <div class="tab-pane fade" id="rewards">
+                    <div class="row g-3">
+                        {% for reward in rewards %}
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-3 h-100 bg-white">
+                                {% if reward.image %}
+                                <img src="{{ reward.image.url }}"
+                                     class="img-fluid rounded-3 mb-3"
+                                     style="height:130px;object-fit:cover;width:100%">
+                                {% endif %}
+                                <div class="d-flex justify-content-between gap-2 mb-2">
+                                    <h6 class="fw-bold mb-0">{{ reward.title }}</h6>
+                                    <span class="badge rounded-pill {% if reward.is_badge %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                        {{ reward.get_reward_type_display }}
+                                    </span>
+                                </div>
+                                <p class="small text-muted mb-2">{{ reward.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold" style="color:#F4A261">{{ reward.minimum_amount }} MAD+</span>
+                                    {% if reward.quantity_available %}
+                                    <small class="text-muted">{{ reward.quantity_available }} restants</small>
+                                    {% else %}
+                                    <small class="text-muted">Illimite</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">Aucune recompense disponible.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Commentaires -->
+                <!-- Commentaires -->
+<div class="tab-pane fade" id="comments">
+
+    <!-- Formulaire ajout commentaire -->
+    {% if user.is_authenticated %}
+    <form method="post" action="/updates/comment/{{ project.slug }}/" class="mb-4">
+        {% csrf_token %}
+        <textarea class="form-control rounded-3 mb-2"
+                  name="content" rows="3"
+                  placeholder="Laisser un commentaire..."></textarea>
+        <button class="btn btn-primary btn-sm rounded-pill px-4">
+            <i class="bi bi-send me-1"></i>Publier
+        </button>
+    </form>
+    {% else %}
+    <div class="alert alert-light rounded-3 mb-4">
+        <a href="/accounts/login/">Connectez-vous</a> pour commenter.
+    </div>
+    {% endif %}
+
+    <!-- Liste commentaires -->
+    {% for comment in project.comments.all %}
+    {% if not comment.is_hidden and not comment.parent %}
+    <div class="border rounded-3 p-3 mb-3">
+        <div class="d-flex gap-3">
+
+            <!-- Avatar -->
+            <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:40px;height:40px;background:#1A3C5E;font-size:.85rem">
+                {{ comment.author.first_name.0 }}{{ comment.author.last_name.0 }}
+            </div>
+
+            <div class="flex-grow-1">
+                <!-- Auteur + date -->
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-semibold small">
+                        {{ comment.author.get_full_name }}
+                        <span class="text-muted fw-normal">
+                            · {{ comment.created_at|timesince }} ago
+                        </span>
+                    </span>
+
+                    <!-- Boutons modifier/supprimer -->
+                    {% if user == comment.author or user.is_staff %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light rounded-pill"
+                                data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li>
+                                <button class="dropdown-item small edit-comment-btn"
+                                        data-id="{{ comment.pk }}"
+                                        data-content="{{ comment.content }}">
+                                    <i class="bi bi-pencil me-2"></i>Modifier
+                                </button>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger small"
+                                   href="/updates/comment/delete/{{ comment.pk }}/">
+                                    <i class="bi bi-trash me-2"></i>Supprimer
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Contenu commentaire -->
+                <p class="mb-2 small" id="comment-text-{{ comment.pk }}">
+                    {{ comment.content }}
+                </p>
+
+                <!-- Formulaire modification (caché par défaut) -->
+                {% if user == comment.author %}
+                <form method="post"
+                      action="/updates/comment/edit/{{ comment.pk }}/"
+                      class="d-none" id="edit-form-{{ comment.pk }}">
+                    {% csrf_token %}
+                    <textarea name="content"
+                              class="form-control form-control-sm rounded-3 mb-2"
+                              rows="2">{{ comment.content }}</textarea>
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-sm btn-primary rounded-pill px-3">
+                            Sauvegarder
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary rounded-pill px-3 cancel-edit"
+                                data-id="{{ comment.pk }}">
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <!-- Répondre -->
+                {% if user.is_authenticated %}
+                <button class="btn btn-sm btn-link text-muted p-0 reply-btn"
+                        data-id="{{ comment.pk }}" style="font-size:.8rem">
+                    <i class="bi bi-reply me-1"></i>Répondre
+                </button>
+
+                <!-- Formulaire réponse -->
+                <form method="post"
+                      action="/updates/comment/{{ project.slug }}/"
+                      class="d-none mt-2" id="reply-form-{{ comment.pk }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="{{ comment.pk }}">
+                    <textarea name="content"
+                              class="form-control form-control-sm rounded-3 mb-2"
+                              rows="2"
+                              placeholder="Votre réponse..."></textarea>
+                    <button type="submit"
+                            class="btn btn-sm btn-primary rounded-pill px-3">
+                        Répondre
+                    </button>
+                </form>
+                {% endif %}
+
+                <!-- Réponses -->
+                {% for reply in comment.replies.all %}
+                {% if not reply.is_hidden %}
+                <div class="d-flex gap-2 mt-3 ps-3 border-start">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:32px;height:32px;background:#2E86AB;font-size:.75rem">
+                        {{ reply.author.first_name.0 }}{{ reply.author.last_name.0 }}
+                    </div>
+                    <div>
+                        <div class="fw-semibold small">
+                            {{ reply.author.get_full_name }}
+                            <span class="text-muted fw-normal">
+                                · {{ reply.created_at|timesince }} ago
+                            </span>
+                        </div>
+                        <p class="small mb-0">{{ reply.content }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% empty %}
+    <p class="text-muted">Soyez le premier à commenter ce projet.</p>
+    {% endfor %}
+
+</div>
+
+        <!-- ════ COLONNE DROITE ════ -->
+        <div class="col-lg-4">
+            <div class="card p-4 sticky-top" style="top:80px">
+
+                {% if project.status != 'active' %}
+                <div class="alert alert-warning rounded-3 small mb-3">
+                    Ce projet n'est pas encore publie. Il doit etre confirme par le moderateur avant de recevoir des contributions.
+                </div>
+                {% endif %}
+
+                <!-- Montant -->
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold fs-5" style="color:#F4A261">
+                        {{ project.current_amount }} MAD
+                    </span>
+                    <span class="text-muted small">
+                        sur {{ project.goal_amount }} MAD
+                    </span>
+                </div>
+
+                <!-- Barre progression -->
+                <div class="progress mb-3" style="height:10px">
+                    <div class="progress-bar rounded-pill"
+                         style="width:{{ project.progress_percent }}%">
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="row text-center mb-4 g-0">
+                    <div class="col-4 border-end">
+                        <div class="fw-bold">{{ project.progress_percent }}%</div>
+                        <div class="text-muted" style="font-size:.75rem">Financé</div>
+                    </div>
+                    <div class="col-4 border-end">
+                        <div class="fw-bold">{{ project.backers_count }}</div>
+                        <div class="text-muted" style="font-size:.75rem">Contrib.</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold {% if project.days_remaining <= 5 %}text-danger{% endif %}">
+                            {{ project.days_remaining }}
+                        </div>
+                        <div class="text-muted" style="font-size:.75rem">Jours</div>
+                    </div>
+                </div>
+
+                <!-- Bouton -->
+                {% if project.status == 'active' and user.is_authenticated %}
+                <a href="/pledges/create/{{ project.slug }}/"
+                   class="btn btn-accent w-100 fw-semibold rounded-pill mb-3">
+                    <i class="bi bi-heart-fill me-2"></i>Soutenir ce projet
+                </a>
+                {% elif project.status == 'active' %}
+                <a href="/accounts/login/"
+                   class="btn btn-accent w-100 fw-semibold rounded-pill mb-3">
+                    <i class="bi bi-heart-fill me-2"></i>Soutenir ce projet
+                </a>
+                {% endif %}
+
+                {% if user == project.owner and not can_admin_delete_project %}
+                <div class="d-flex gap-2 mb-3">
+                    <a href="/projects/{{ project.slug }}/edit/"
+                       class="btn btn-sm btn-outline-primary rounded-pill flex-fill">
+                        <i class="bi bi-pencil me-1"></i>Modifier
+                    </a>
+                    <a href="/rewards/create/{{ project.slug }}/"
+                       class="btn btn-sm btn-outline-success rounded-pill flex-fill">
+                        <i class="bi bi-gift me-1"></i>Reward
+                    </a>
+                    {% if project.status != 'active' %}
+                    <form method="post" action="/projects/{{ project.slug }}/delete/" class="flex-fill">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger rounded-pill w-100"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                            <i class="bi bi-trash me-1"></i>Supprimer
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if can_admin_delete_project %}
+                <form method="post" action="/projects/{{ project.slug }}/delete/" class="mb-3">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger rounded-pill w-100"
+                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                        <i class="bi bi-trash me-1"></i>Supprimer
+                    </button>
+                </form>
+                {% endif %}
+
+                <hr>
+
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-gift me-1"></i>Rewards disponibles
+                </h6>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    {% for reward in rewards|slice:":4" %}
+                    <div class="border rounded-3 p-2 bg-light">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span class="small fw-semibold">{{ reward.title }}</span>
+                            <span class="small fw-bold" style="color:#F4A261">{{ reward.minimum_amount }}+</span>
+                        </div>
+                        <small class="text-muted">{{ reward.get_reward_type_display }}</small>
+                    </div>
+                    {% empty %}
+                    <small class="text-muted">Aucune reward configuree.</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Partage -->
+                <div class="text-center">
+                    <small class="text-muted d-block mb-2">Partager</small>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle"
+                           style="width:36px;height:36px">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle"
+                           style="width:36px;height:36px">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-circle"
+                           style="width:36px;height:36px">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Afficher formulaire modification
+    document.querySelectorAll('.edit-comment-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('comment-text-' + id).classList.add('d-none');
+            document.getElementById('edit-form-' + id).classList.remove('d-none');
+        });
+    });
+
+    // Annuler modification
+    document.querySelectorAll('.cancel-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('comment-text-' + id).classList.remove('d-none');
+            document.getElementById('edit-form-' + id).classList.add('d-none');
+        });
+    });
+
+    // Afficher formulaire réponse
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            document.getElementById('reply-form-' + id).classList.toggle('d-none');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Ajouter une recompense - FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:650px">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-gift me-2"></i>Ajouter une recompense</h2>
+        <p class="text-muted">Projet : <strong>{{ project.title }}</strong></p>
+    </div>
+
+    <div class="card p-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger rounded-3">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">Nom de la recompense *</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">Description *</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Montant minimum (MAD) *</label>
+                    {{ form.minimum_amount }}
+                    {{ form.minimum_amount.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Type de recompense</label>
+                    {{ form.reward_type }}
+                    {{ form.reward_type.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Quantite disponible</label>
+                    {{ form.quantity_available }}
+                    <small class="text-muted">Laisser vide pour illimite.</small>
+                    {{ form.quantity_available.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Image</label>
+                    {{ form.image }}
+                    {{ form.image.errors }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Livraison estimee</label>
+                    {{ form.estimated_delivery }}
+                    {{ form.estimated_delivery.errors }}
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.ships_internationally }}
+                        <label class="form-check-label small" for="{{ form.ships_internationally.id_for_label }}">
+                            Expedition internationale
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex gap-3 justify-content-end">
+                    <a href="/projects/{{ project.slug }}/" class="btn btn-outline-secondary rounded-pill px-4">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-accent rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-plus-lg me-1"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

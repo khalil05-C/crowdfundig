@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Bonjour, {{ request.user.first_name }}</h2>
+            <p class="text-muted small mb-0">Bienvenue sur votre tableau de bord</p>
+        </div>
+        {% if request.user.role == 'project_owner' %}
+        <a href="/projects/create/" class="btn btn-accent rounded-pill px-4">
+            <i class="bi bi-plus-lg me-1"></i>Nouveau projet
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <i class="bi bi-folder fs-2 mb-2" style="color:#2E86AB"></i>
+                <div class="fs-3 fw-bold" style="color:#1A3C5E">{{ total_projects }}</div>
+                <div class="text-muted small">Mes projets</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <i class="bi bi-heart fs-2 mb-2 text-danger"></i>
+                <div class="fs-3 fw-bold" style="color:#1A3C5E">{{ total_pledges }}</div>
+                <div class="text-muted small">Contributions</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <i class="bi bi-cash-coin fs-2 mb-2 text-success"></i>
+                <div class="fs-3 fw-bold" style="color:#F4A261">{{ total_raised }}</div>
+                <div class="text-muted small">MAD bruts</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center p-3">
+                <i class="bi bi-wallet2 fs-2 mb-2 text-success"></i>
+                <div class="fs-3 fw-bold" style="color:#1A3C5E">{{ total_net_available }}</div>
+                <div class="text-muted small">MAD nets</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">Commission plateforme prelevee</div>
+                        <div class="fs-4 fw-bold text-danger">{{ total_commission }} MAD</div>
+                    </div>
+                    <i class="bi bi-percent fs-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">Notifications non lues</div>
+                        <div class="fs-4 fw-bold" style="color:#1A3C5E">{{ total_notifications }}</div>
+                    </div>
+                    <i class="bi bi-bell fs-2 text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+                    <h6 class="fw-bold mb-0">Mes projets</h6>
+                    <a href="/projects/create/" class="btn btn-sm btn-outline-primary rounded-pill">
+                        + Nouveau
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 small">Projet</th>
+                                <th class="small">Progression</th>
+                                <th class="small">Finances</th>
+                                <th class="small">Statut</th>
+                                <th class="small">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects %}
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-semibold small">{{ project.title|truncatechars:30 }}</div>
+                                    <small class="text-muted">{{ project.days_remaining }}j restants</small>
+                                </td>
+                                <td style="min-width:140px">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height:5px">
+                                            <div class="progress-bar" style="width:{{ project.progress_percent }}%"></div>
+                                        </div>
+                                        <small>{{ project.progress_percent }}%</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ project.current_amount }} / {{ project.goal_amount }} MAD
+                                    </small>
+                                </td>
+                                <td>
+                                    <small class="d-block">Brut : <strong>{{ project.gross_collected }} MAD</strong></small>
+                                    <small class="d-block text-danger">Commission : {{ project.commission_collected }} MAD</small>
+                                    <small class="d-block text-success">Net : {{ project.net_available }} MAD</small>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill
+                                        {% if project.status == 'active' %}bg-success
+                                        {% elif project.status == 'funded' %}bg-primary
+                                        {% elif project.status == 'pending' %}bg-warning text-dark
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/projects/{{ project.slug }}/" class="btn btn-sm btn-outline-secondary rounded-pill me-1">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="/projects/{{ project.slug }}/edit/" class="btn btn-sm btn-outline-primary rounded-pill me-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post" action="/projects/{{ project.slug }}/delete/" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Supprimer ce projet ?');">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Aucun projet. <a href="/projects/create/">Creez le premier !</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">Notifications recentes</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for notif in notifications %}
+                    <div class="list-group-item py-3 {% if not notif.is_read %}bg-light{% endif %}">
+                        <div class="fw-semibold small">{{ notif.title }}</div>
+                        <div class="text-muted small">{{ notif.message|truncatewords:10 }}</div>
+                        <div class="text-muted" style="font-size:.75rem">{{ notif.created_at|timesince }} ago</div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4 small">Aucune notification</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

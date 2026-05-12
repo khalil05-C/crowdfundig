@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="{% if is_ar %}ar{% else %}fr{% endif %}" dir="{% if is_ar %}rtl{% else %}ltr{% endif %}">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FundRise MA{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1A3C5E;
+            --secondary: #2E86AB;
+            --accent: #F4A261;
+            --light: #F0F9FF;
+            --dark: #1A1A2E;
+        }
+
+        * { font-family: 'Poppins', sans-serif; }
+        body { background:#f8f9fa; }
+        [dir="rtl"] body { text-align: right; }
+        [dir="rtl"] .me-1 { margin-right: 0 !important; margin-left: .25rem !important; }
+        [dir="rtl"] .me-2 { margin-right: 0 !important; margin-left: .5rem !important; }
+        [dir="rtl"] .me-3 { margin-right: 0 !important; margin-left: 1rem !important; }
+
+        .navbar { padding: 15px 0; border-bottom: 2px solid var(--light); }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; color: var(--primary) !important; }
+        .navbar-brand span { color: var(--accent); }
+        .nav-link { font-weight: 500; color: var(--dark) !important; transition: color .2s; }
+        .nav-link:hover { color: var(--accent) !important; }
+
+        .btn-primary { background: var(--primary); border: none; border-radius: 25px; padding: 10px 25px; font-weight: 600; }
+        .btn-primary:hover { background: var(--secondary); }
+        .btn-accent { background: var(--accent); border: none; border-radius: 25px; padding: 10px 25px; font-weight: 600; color: white; }
+        .btn-accent:hover { background: #e08040; color: white; }
+        .btn-outline-primary { border: 2px solid var(--primary); color: var(--primary); border-radius: 25px; padding: 8px 22px; font-weight: 600; }
+        .btn-outline-primary:hover { background: var(--primary); color: white; }
+
+        .card { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.08); transition: transform .3s, box-shadow .3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,.15); }
+        .progress { height: 8px; border-radius: 4px; }
+        .progress-bar { background: var(--accent); }
+
+        footer { background: var(--primary); color: #94A3B8; }
+        footer a { color: #CBD5E1; text-decoration: none; }
+        footer a:hover { color: var(--accent); }
+        .lang-switcher a { font-size: .85rem; font-weight: 600; color: var(--primary); text-decoration: none; padding: 3px 8px; border-radius: 5px; }
+        .lang-switcher a:hover { background: var(--light); }
+        .lang-switcher .active { background: var(--primary); color: white !important; }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            Fund<span>Rise</span> <small class="text-muted fw-light" style="font-size:.9rem">MA</small>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/projects/">
+                        <i class="bi bi-grid me-1"></i>{% if is_ar %}استكشاف{% else %}Explorer{% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/comment-ca-marche/">
+                        <i class="bi bi-info-circle me-1"></i>{% if is_ar %}كيف تعمل المنصة{% else %}Comment ça marche{% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/support/">
+                        <i class="bi bi-headset me-1"></i>{% if is_ar %}الدعم{% else %}Support{% endif %}
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="lang-switcher d-flex gap-1">
+                    <a href="/lang/fr/" class="{% if not is_ar %}active{% endif %}">FR</a>
+                    <a href="/lang/ar/" class="{% if is_ar %}active{% endif %}">AR</a>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <a href="/dashboard/" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-speedometer2 me-1"></i>{% if is_ar %}لوحة التحكم{% else %}Dashboard{% endif %}
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm d-flex align-items-center gap-2 border rounded-pill px-3" data-bs-toggle="dropdown">
+                            <span class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                  style="width:28px;height:28px;font-size:.75rem;background:var(--primary)!important">
+                                {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            </span>
+                            {{ user.first_name }}
+                            <i class="bi bi-chevron-down" style="font-size:.7rem"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li><a class="dropdown-item" href="/accounts/profile/"><i class="bi bi-person me-2"></i>{% if is_ar %}ملفي الشخصي{% else %}Mon profil{% endif %}</a></li>
+                            <li>
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/notifications/">
+                                    <span><i class="bi bi-bell me-2"></i>Notifications</span>
+                                    {% if unread_notifications_count %}
+                                    <span class="badge rounded-pill bg-danger">{{ unread_notifications_count }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="/pledges/history/"><i class="bi bi-clock-history me-2"></i>{% if is_ar %}مساهماتي{% else %}Mes contributions{% endif %}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/accounts/logout/"><i class="bi bi-box-arrow-right me-2"></i>{% if is_ar %}تسجيل الخروج{% else %}Déconnexion{% endif %}</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="/accounts/login/" class="btn btn-outline-primary btn-sm">{% if is_ar %}تسجيل الدخول{% else %}Se connecter{% endif %}</a>
+                    <a href="/accounts/register/" class="btn btn-accent btn-sm">
+                        <i class="bi bi-rocket me-1"></i>{% if is_ar %}ابدأ{% else %}Démarrer{% endif %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="text-white fw-bold mb-3">Fund<span style="color:var(--accent)">Rise</span> MA</h5>
+                <p class="small">{% if is_ar %}أول منصة تمويل جماعي موجهة للسوق المغربي.{% else %}La première plateforme de financement participatif adaptée au marché marocain.{% endif %}</p>
+            </div>
+            <div class="col-md-2">
+                <h6 class="text-white mb-3">{% if is_ar %}استكشاف{% else %}Explorer{% endif %}</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="/projects/">{% if is_ar %}المشاريع الحديثة{% else %}Projets récents{% endif %}</a></li>
+                    <li><a href="/projects/?category=technologie">{% if is_ar %}التكنولوجيا{% else %}Technologie{% endif %}</a></li>
+                    <li><a href="/projects/?category=humain">{% if is_ar %}الإنسان{% else %}Humain{% endif %}</a></li>
+                    <li><a href="/projects/?category=animal">{% if is_ar %}الحيوان{% else %}Animal{% endif %}</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2">
+                <h6 class="text-white mb-3">{% if is_ar %}المنصة{% else %}Plateforme{% endif %}</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="/comment-ca-marche/">{% if is_ar %}كيف تعمل المنصة{% else %}Comment ça marche{% endif %}</a></li>
+                    <li><a href="#">{% if is_ar %}الرسوم{% else %}Tarifs{% endif %}</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-white mb-3">{% if is_ar %}النشرة البريدية{% else %}Newsletter{% endif %}</h6>
+                <p class="small">{% if is_ar %}توصل بآخر المشاريع في بريدك الإلكتروني.{% else %}Recevez les derniers projets dans votre boîte.{% endif %}</p>
+                <div class="input-group">
+                    <input type="email" class="form-control form-control-sm rounded-start-pill" placeholder="email@exemple.com">
+                    <button class="btn btn-accent btn-sm rounded-end-pill">{% if is_ar %}اشتراك{% else %}S'abonner{% endif %}</button>
+                </div>
+            </div>
+        </div>
+        <hr class="border-secondary mt-4">
+        <div class="d-flex flex-wrap justify-content-between small">
+            <span>© 2026 FundRise MA</span>
+            <span>
+                <a href="#" class="me-3">{% if is_ar %}الشروط{% else %}Conditions{% endif %}</a>
+                <a href="#" class="me-3">{% if is_ar %}الخصوصية{% else %}Confidentialité{% endif %}</a>
+                <a href="/support/">{% if is_ar %}اتصل بنا{% else %}Contact{% endif %}</a>
+            </span>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Retrait de fonds – FundRise MA{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width:600px">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">💸 Demande de retrait</h2>
+        <p class="text-muted">Projet : <strong>{{ project.title }}</strong></p>
+    </div>
+
+    <!-- Infos projet -->
+    <div class="alert rounded-3 mb-4"
+         style="background:#F0F9FF;border:1px solid #2E86AB">
+        <div class="row text-center g-0">
+            <div class="col-4 border-end">
+                <div class="fw-bold" style="color:#F4A261">
+                    {{ project.current_amount }} MAD
+                </div>
+                <div class="text-muted small">Collecté</div>
+            </div>
+            <div class="col-4 border-end">
+                <div class="fw-bold text-success">
+                    {{ project.progress_percent }}%
+                </div>
+                <div class="text-muted small">Financé</div>
+            </div>
+            <div class="col-4">
+                <div class="fw-bold text-primary">
+                    {{ project.backers_count }}
+                </div>
+                <div class="text-muted small">Contributeurs</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">
+                        Montant à retirer (MAD) *
+                    </label>
+                    <input type="number" name="amount"
+                           class="form-control rounded-3"
+                           placeholder="Ex: 5000"
+                           max="{{ project.current_amount }}"
+                           min="100" required>
+                    <div class="form-text">
+                        Maximum disponible :
+                        <strong>{{ project.current_amount }} MAD</strong>
+                        (après commission 5%)
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">
+                        RIB Bancaire *
+                    </label>
+                    <input type="text" name="bank_rib"
+                           class="form-control rounded-3"
+                           placeholder="Ex: 011 780 0000123456789012 34"
+                           maxlength="24" required>
+                    <div class="form-text">
+                        Votre RIB à 24 chiffres
+                    </div>
+                </div>
+
+                <!-- Info délai -->
+                <div class="col-12">
+                    <div class="alert alert-warning rounded-3 small">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Le traitement prend <strong>3 à 5 jours ouvrés</strong>.
+                        Vous serez notifié par email.
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex gap-3 justify-content-end">
+                    <a href="/dashboard/"
+                       class="btn btn-outline-secondary rounded-pill px-4">
+                        Annuler
+                    </a>
+                    <button type="submit"
+                            class="btn btn-accent rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-send me-1"></i>Envoyer la demande
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
